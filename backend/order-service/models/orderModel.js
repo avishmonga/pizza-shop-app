@@ -5,6 +5,10 @@ const sizeEnum = ['small', 'medium', 'large'];
 const itemTypeEnum = ['pizza', 'soda'];
 
 const itemSchema = new mongoose.Schema({
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Menu',
+  },
   name: { type: String, required: true },
   size: { type: String, enum: sizeEnum, required: true },
   quantity: { type: Number, required: true },
