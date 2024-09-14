@@ -1,27 +1,28 @@
 const Order = require('shared/pizza-shop-app/models/orderModel');
-const { pizzaQueue } = require('../queue/orderQueue');
+const axios = require('axios');
 
-const jobOptions = {
-  attempts: 5,
-  backoff: {
-    type: 'exponential',
-    delay: 5000,
-  },
+// Notify the chef-service of the new order
+const notifyWebSocket = async (order) => {
+  try {
+    // Notify the chef-service of the new order
+
+    await axios.post(
+      `http://${process.env.CHEF_SERVICE_HOST}:${process.env.CHEF_SERVICE_PORT}/chef/new-order`,
+      {
+        order,
+      }
+    );
+  } catch (error) {
+    console.error('Error notifying chef-service:', error.message);
+    throw new Error('Failed to notify chef-service');
+  }
 };
 
 // Create a new order
 exports.createOrder = async (orderData) => {
   const order = await Order.create(orderData);
 
-  // Add the order to the pizzaQueue for chef service
-  await pizzaQueue.add(
-    'preparePizza',
-    {
-      orderId: order._id,
-      items: order.items.filter((item) => item.type === 'pizza'),
-    },
-    jobOptions
-  );
+  await notifyWebSocket(order);
 
   return order;
 };
