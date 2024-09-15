@@ -28,8 +28,8 @@ exports.createOrder = async (orderData) => {
 };
 
 // Get all orders
-exports.getOrders = async () => {
-  return await Order.find();
+exports.getOrders = async (clientId) => {
+  return await Order.find({ clientId });
 };
 
 // Get a order by ID

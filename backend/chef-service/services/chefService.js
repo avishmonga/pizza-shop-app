@@ -162,8 +162,7 @@ const addItemToSplitQueue = async (orderId, jobId, item) => {
  * @returns {Promise<void>} - A promise that resolves when the pizza got ready.
  *
  */
-// Function to handle pizza preparation
-async function processPizzaOrder(orderId, jobId, splitId) {
+const processPizzaOrder = async (orderId, jobId, splitId) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 5000 * 60)); // 5 minutes
     await Split.markAsCompleted(splitId);
@@ -171,6 +170,7 @@ async function processPizzaOrder(orderId, jobId, splitId) {
     let pendingSplits = await Split.find({
       jobId,
       status: { $ne: 'completed' },
+      type: 'pizza',
     }).countDocuments();
     if (pendingSplits === 0) {
       const order = await Order.findByIdAndUpdate(orderId, {
@@ -199,11 +199,39 @@ async function processPizzaOrder(orderId, jobId, splitId) {
   } catch (error) {
     console.error(`Failed to process order ${orderId}:`, error);
   }
-}
+};
+
+/**
+ * Function to return pending orders list and estimated time remaining and pending order count for admin.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing:
+ *   @property {Array} pendingOrdersList - List of pending orders.
+ *   @property {number} estimatedPreparationTimeInMinutes - The estimated  preparation time for pending orders in minutes.
+ *   @property {number} pendingOrders - The count of pending orders.
+ */
+
+const getPendingOrders = async () => {
+  try {
+    let pendingOrdersList = await Order.find({ status: { $ne: 'completed' } });
+    let { estimatedPreprationTimeInMinutes, pendingOrders } =
+      await calculatePendingOrdersAndTime();
+    return {
+      pendingOrders,
+      estimatedPreprationTimeInMinutes,
+      pendingOrdersList,
+    };
+  } catch (error) {
+    console.error(
+      `Failed to  return pending orders : pending orders api`,
+      error
+    );
+    throw error;
+  }
+};
 
 module.exports = {
   addOrderToJobQueue,
   processPizzaOrder,
   addItemToSplitQueue,
   addPizzaToQueue,
+  getPendingOrders,
 };

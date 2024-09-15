@@ -2,7 +2,12 @@ const orderService = require('../services/orderService');
 
 exports.createOrder = async (req, res) => {
   try {
-    const order = await orderService.createOrder(req.body);
+    let { clientId } = req.query;
+    const order = await orderService.createOrder({
+      items: req.body.items,
+      totalPrice: req.body.totalPrice,
+      clientId,
+    });
     return res.status(201).send(order);
   } catch (err) {
     return res.status(500).send({ error: 'Error creating order' });
@@ -11,7 +16,8 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await orderService.getOrders();
+    let { clientId } = req.query;
+    const orders = await orderService.getOrders(clientId);
     return res.status(200).send(orders);
   } catch (err) {
     return res.status(500).send({ error: 'Error fetching orders' });
