@@ -1,0 +1,29 @@
+Kubernetes part is still not deleverable as expected as i am still struggling into it so wont be able to fix part
+but created deploymet files and working pods but getting CORS error as frontend is hitting api's with diffrent microservices
+which i am researching how it can be handle as kubernetes is totaly new for me
+
+Structure ->
+
+so we have two folders 1. backend 2. frontend
+
+backend having 3 microservices named order-service, menu-service and chef-service
+
+order-service->
+
+This service is used by customer to creating order and fetching previous orders using clientId (created in frontend ) and
+when an order created it trigger an api to chef-service to notify chef that an order is got placed
+
+menu-service ->
+
+This service is used by customer to see items to be ordered
+we haven't given menu item creation part in frontend but given api's to create menu items
+
+chef-service ->
+
+This service is used internaly when it recieve an order from order-service it firstly it notify admin using web-socket that an order received and then pass create an job for this order->
+
+Job creates multiple splits for this order means create 1 split created for 1 item 1 quantity and if that type is pizza it has been added to pizza queue as we are only handling pizza chef
+
+Pizza-worker -> pizza worker recieve split and process making of pizza and notify admin about pending orders count and estimeted time remaining and also check if that job ID all pizza splits is completed ? if Yes it notify admin that this order is got completed
+
+And above all process done using Bull MQ

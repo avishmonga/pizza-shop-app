@@ -6,14 +6,15 @@ const cors = require('cors');
 const app = express();
 
 // Middleware
-app.use(
-  cors({
-    origin: 'http://localhost:3000', // Allow your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow the HTTP methods you use
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers you need
-  })
-);
+const corsOpts = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type'],
+  credentials: true,
+};
 
+app.use(cors(corsOpts));
 app.use(express.json());
 
 // Routes

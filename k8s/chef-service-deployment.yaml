@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chef-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chef-service
+  template:
+    metadata:
+      labels:
+        app: chef-service
+    spec:
+      containers:
+        - name: chef-service
+          image: avishkmonga/chef-service:latest
+          ports:
+            - containerPort: 3003
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_URI
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REDIS_PORT
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FRONTEND_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chef-service
+spec:
+  selector:
+    app: chef-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3003
+  type: LoadBalancer
